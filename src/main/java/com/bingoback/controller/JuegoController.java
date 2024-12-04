@@ -8,7 +8,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bingo")
-@CrossOrigin(value = "http:localhost:4200")
+@CrossOrigin(value = "http://localhost:4200")
 public class JuegoController {
     @Autowired
     private JuegoService juegoService;
