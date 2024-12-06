@@ -1,8 +1,10 @@
 package com.bingoback.auth.config;
 
 import com.bingoback.auth.config.filter.JwtTokenValidator;
+import com.bingoback.auth.persistence.repository.InvalidarTokenRepository;
 import com.bingoback.auth.service.UserDetailsServiceImpl;
 import com.bingoback.auth.util.JwtUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -31,6 +33,19 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final JwtUtils jwtUtils;
+    private final InvalidarTokenRepository invalidarTokenRepository;
+
+    @Autowired
+    public SecurityConfig(JwtUtils jwtUtils, InvalidarTokenRepository invalidarTokenRepository) {
+        this.jwtUtils = jwtUtils;
+        this.invalidarTokenRepository = invalidarTokenRepository;
+    }
+
+    @Bean
+    public JwtTokenValidator jwtTokenValidator() {
+        return new JwtTokenValidator(jwtUtils,invalidarTokenRepository);
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -46,24 +61,24 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtUtils jwtUtils) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
-                //.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http ->{
                     //public endpoints
                     http.requestMatchers("/api/bingo/auth/**").permitAll();
-                    http.requestMatchers("/api/bingo/**").permitAll();
 
                     //private endpoints
+                    http.requestMatchers("/api/bingo/**").authenticated();
 
                     //else...
-                    //http.anyRequest().denyAll();
+                    http.anyRequest().authenticated();
 
                 })
-                .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
+                .addFilterBefore(jwtTokenValidator(), BasicAuthenticationFilter.class)
                 .build();
 
     }

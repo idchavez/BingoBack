@@ -51,13 +51,11 @@ public class JuegoService {
         return numero;
     }
 
-    public int[][] validarNumero(int[][] matriz, int numero) {
-        for (int i = 0; i < matriz.length; i++) {
-            for (int j = 0; j < matriz[i].length; j++) {
-                if(matriz[i][j] == numero) {
-                    matriz[i][j] = 0;
-                }
-            }
+    public int[][] validarNumero(int[][] matriz, int numero, int i, int j) {
+        if (matriz[i][j] == numero) {
+            matriz[i][j] = 0;
+        } else {
+            throw new IllegalArgumentException("El numero no coincide con el sorteado");
         }
         return matriz;
     }
@@ -73,6 +71,53 @@ public class JuegoService {
             }
             System.out.println();
         }
+    }
+
+    public boolean esGanador(int[][] tarjeta) {
+        boolean tableroLleno = true;
+        for (int[] fila: tarjeta) {
+            for (int num: fila) {
+                if(num != 0) {
+                    tableroLleno = false;
+                    break;
+                }
+            }
+            if(!tableroLleno) break;
+        }
+
+        boolean esquinasLlenas =
+                tarjeta[0][0] == 0 && tarjeta[0][tarjeta[0].length - 1] == 0 &&
+                tarjeta[tarjeta.length - 1][0] == 0 && tarjeta[tarjeta.length -1][tarjeta[0].length -1] == 0;
+
+        boolean diagonal = true;
+        for (int i = 0; i < tarjeta.length; i++) {
+            if (tarjeta[i][tarjeta.length - 1 - i] != 0) {
+                diagonal = false;
+                break;
+            }
+        }
+
+        boolean filaLlena = true;
+        for (int j = 0; j < tarjeta[3].length; j++) {
+            if (tarjeta[3][j] != 0) {
+                filaLlena = false;
+                break;
+            }
+        }
+
+        boolean columnaLlena = true;
+        for (int i = 0; i < tarjeta.length; i++) {
+            if (tarjeta[i][3] != 0) {
+                columnaLlena = false;
+                break;
+            }
+        }
+
+        return tableroLleno || esquinasLlenas || filaLlena || columnaLlena;
+    }
+
+    public void reiniciarBombo(){
+        this.numerosSorteados.clear();
     }
 
 }

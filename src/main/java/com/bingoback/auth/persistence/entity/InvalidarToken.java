@@ -11,15 +11,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "sesiones")
-public class Sesion {
+@Table(name = "tokens_invalidos")
+public class InvalidarToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String sessionId;
-    private String username;
-    private LocalDateTime loginTime;
 
+    @Column(unique = true)
+    private String token;
+
+    private LocalDateTime invalidatedAt;
 
 }
